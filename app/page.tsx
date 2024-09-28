@@ -1,10 +1,29 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "@/styles/page.module.css";
 
 export default function Home() {
+  const [isMouthClicked, setIsMouthClicked] = useState(false);
+  const [isSleeping, setIsSleeping] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const mouthRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    let inactivityTimer: NodeJS.Timeout;
+
+    const resetInactivityTimer = () => {
+      setIsSleeping(false);
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        setIsSleeping(true);
+        console.log(isSleeping);
+      }, 3000);
+    };
+
     const handleMouseMove = (event: MouseEvent) => {
+      resetInactivityTimer();
+      if (isMouthClicked || isSleeping) return;
+
       const eyes = document.querySelectorAll(`.${styles.eye}`);
       const mouth = document.querySelector(`.${styles.mouth}`) as HTMLElement;
       const { clientX, clientY } = event;
@@ -28,23 +47,89 @@ export default function Home() {
     };
 
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", resetInactivityTimer);
+    window.addEventListener("keydown", resetInactivityTimer);
+    window.addEventListener("mousedown", resetInactivityTimer);
+
+    resetInactivityTimer();
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", resetInactivityTimer);
+      window.removeEventListener("keydown", resetInactivityTimer);
+      window.removeEventListener("mousedown", resetInactivityTimer);
+      clearTimeout(inactivityTimer);
     };
-  }, []);
+  }, [isMouthClicked, isSleeping]);
+
+  useEffect(() => {
+    if (isMouthClicked) {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          setIsMouthClicked(false);
+        }
+      };
+
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          mouthRef.current &&
+          !mouthRef.current.contains(event.target as Node)
+        ) {
+          setIsMouthClicked(false);
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("mousedown", handleClickOutside);
+
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [isMouthClicked]);
 
   return (
-    <div className={styles.container}>
+    <div
+      className={`${styles.container}${isSubmitting ? styles.submitting : ""}`}>
       <div className={styles.face}>
         <div className={styles.eyes}>
-          <div className={styles.eye}></div>
-          <div className={styles.eye}></div>
+          <div
+            className={`${styles.eye}  ${
+              isSleeping ? styles.sleeping : ""
+            } `}></div>
+          <div
+            className={`${styles.eye}  ${
+              isSleeping ? styles.sleeping : ""
+            } `}></div>{" "}
         </div>
-        <div className={styles.mouth}></div>
+        <div
+          ref={mouthRef}
+          className={`${styles.mouth} ${
+            isMouthClicked ? styles.mouthClicked : ""
+          }`}
+          onClick={() => setIsMouthClicked(true)}>
+          {isMouthClicked && (
+            <input
+              type="text"
+              className={`${styles.textInput} ${
+                isSubmitting ? styles.submittingInput : ""
+              }`}
+              placeholder="텍스트를 입력하세요..."
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setIsSubmitting(true);
+                  setTimeout(() => {
+                    setIsSubmitting(false);
+                    setIsMouthClicked(false);
+                  }, 1000); // Duration of the submit animation
+                }
+              }}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
 }
-
-//너 눈을 왜그렇게 떠?
