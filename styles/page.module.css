@@ -38,7 +38,17 @@
   align-items: center;
   margin: 0 7rem;
   position: relative;
-  transition: scale 0.2s;
+  will-change: transform;
+  transition: scale 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.eye:hover {
+  scale: 1.1;
+  cursor: pointer;
+}
+
+.eye:active {
+  scale: 0.95;
 }
 
 .mouth {
@@ -46,13 +56,129 @@
   height: 1rem;
   background-color: white;
   margin-top: 2rem;
-}
-
-.eye:hover {
-  scale: 1.1 !important;
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  will-change: transform, width, height, border-radius;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+    scale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.eye:active {
-  scale: 0.95 !important;
+.mouth:hover:not(.mouthClicked) {
+  cursor: pointer;
+  scale: 1.5;
+  border-radius: 0.5rem;
+}
+
+.mouthClicked {
+  width: 30rem;
+  height: 5rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+  /* animation: glowAnimation 3s infinite alternate; */
+}
+
+/* @keyframes glowAnimation {
+  0% {
+    box-shadow: 0 0 50px #ff0080, 0 0 20px #ff0080, 0 0 30px #ff0080,
+      0 0 40px #ff0080;
+  }
+  50% {
+    box-shadow: 0 0 50px #ff8c00, 0 0 20px #ff8c00, 0 0 30px #ff8c00,
+      0 0 40px #ff8c00;
+  }
+  100% {
+    box-shadow: 0 0 50px #40e0d0, 0 0 20px #40e0d0, 0 0 30px #40e0d0,
+      0 0 40px #40e0d0;
+  }
+} */
+
+.textInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1.5rem;
+  text-align: center;
+  color: #000;
+}
+
+.textInput::placeholder {
+  color: #000;
+}
+
+.submitting .mouthClicked {
+  animation: submitAnimation 1s forwards;
+}
+
+@keyframes submitAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 50px #40e0d0;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.sleeping .eye {
+  animation: eyeClose 0.5s forwards;
+}
+
+@keyframes eyeClose {
+  0% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(0.1);
+  }
+}
+
+.sleeping .mouth {
+  animation: mouthSleep 0.5s forwards;
+}
+
+@keyframes mouthSleep {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(20px);
+  }
+}
+
+/* Reactivate eyes when awake */
+.eye {
+  transform-origin: center center;
+}
+
+.sleeping .eye,
+.sleeping .mouth {
+  will-change: transform;
+}
+
+/* Ensure pointer events during input mode */
+.mouthClicked,
+.mouthClicked .textInput {
+  pointer-events: auto;
+}
+
+.submittingInput {
+  animation: inputSubmitAnimation 0.4s both;
+}
+
+@keyframes inputSubmitAnimation {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
