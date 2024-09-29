@@ -8,7 +8,6 @@
   background-color: black;
   overflow: hidden;
   position: relative;
-  padding: 20%;
 }
 
 .face {
@@ -18,6 +17,20 @@
   justify-content: center;
   width: 100%;
   height: 100%;
+  animation: faceAnimation 1.3s cubic-bezier(0.42, 0, 0.14, 1.01);
+}
+
+@keyframes faceAnimation {
+  0% {
+    transform: scale(2) translateY(100vh);
+    filter: blur(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+    opacity: 1;
+  }
 }
 
 .eyes {
@@ -26,6 +39,7 @@
   justify-content: center;
   align-items: center;
   margin-bottom: 2rem;
+  transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .eye {
@@ -39,7 +53,7 @@
   margin: 0 7rem;
   position: relative;
   will-change: transform;
-  transition: scale 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  transition: scale 1s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .eye:hover {
@@ -64,7 +78,7 @@
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     border-radius 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    scale 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    scale 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s ease;
 }
 
 .mouth:hover:not(.mouthClicked) {
@@ -74,13 +88,15 @@
 }
 
 .mouthClicked {
-  width: 30rem;
-  height: 5rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 60vw;
+  height: 50vh;
   border-radius: 1rem;
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-  position: relative;
-  overflow: hidden;
-  /* animation: glowAnimation 3s infinite alternate; */
+  background: #161616;
+  margin: 0 !important;
+  padding: 3rem;
 }
 
 /* @keyframes glowAnimation {
@@ -104,15 +120,26 @@
   background: transparent;
   font-size: 1.5rem;
   text-align: center;
-  color: #000;
+  color: #fff;
+  text-align: left;
+  animation: input 1s forwards;
+}
+
+@keyframes input {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .textInput::placeholder {
-  color: #000;
+  color: #fff;
 }
 
-.submitting .mouthClicked {
-  animation: submitAnimation 1s forwards;
+.submitting {
+  animation: submitAnimation 1s forwards !important;
 }
 
 @keyframes submitAnimation {
@@ -121,10 +148,11 @@
   }
   50% {
     transform: scale(1.2);
-    box-shadow: 0 0 50px #40e0d0;
+    opacity: 1;
   }
   100% {
     transform: scale(1);
+    opacity: 0;
   }
 }
 
@@ -154,7 +182,6 @@
   }
 }
 
-/* Reactivate eyes when awake */
 .eye {
   transform-origin: center center;
 }
@@ -164,7 +191,6 @@
   will-change: transform;
 }
 
-/* Ensure pointer events during input mode */
 .mouthClicked,
 .mouthClicked .textInput {
   pointer-events: auto;
@@ -181,4 +207,17 @@
   to {
     opacity: 0;
   }
+}
+.up {
+  transform: translateY(-100vh);
+}
+
+.mouthContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: absolute;
 }

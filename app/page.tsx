@@ -90,10 +90,9 @@ export default function Home() {
   }, [isMouthClicked]);
 
   return (
-    <div
-      className={`${styles.container}${isSubmitting ? styles.submitting : ""}`}>
+    <div className={`${styles.container}`}>
       <div className={styles.face}>
-        <div className={styles.eyes}>
+        <div className={`${styles.eyes}  ${isMouthClicked ? styles.up : ""}`}>
           <div
             className={`${styles.eye}  ${
               isSleeping ? styles.sleeping : ""
@@ -101,33 +100,35 @@ export default function Home() {
           <div
             className={`${styles.eye}  ${
               isSleeping ? styles.sleeping : ""
-            } `}></div>{" "}
+            } `}></div>
         </div>
-        <div
-          ref={mouthRef}
-          className={`${styles.mouth} ${
-            isMouthClicked ? styles.mouthClicked : ""
-          }`}
-          onClick={() => setIsMouthClicked(true)}>
-          {isMouthClicked && (
-            <input
-              type="text"
-              className={`${styles.textInput} ${
-                isSubmitting ? styles.submittingInput : ""
-              }`}
-              placeholder="텍스트를 입력하세요..."
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setIsSubmitting(true);
-                  setTimeout(() => {
-                    setIsSubmitting(false);
-                    setIsMouthClicked(false);
-                  }, 1000); // Duration of the submit animation
-                }
-              }}
-            />
-          )}
+        <div className={` ${isMouthClicked ? styles.mouthContainer : ""}`}>
+          <div
+            ref={mouthRef}
+            className={`${styles.mouth} ${
+              isMouthClicked ? styles.mouthClicked : ""
+            } ${isSubmitting ? styles.submitting : ""}`}
+            onClick={() => setIsMouthClicked(true)}>
+            {isMouthClicked && (
+              <input
+                type="text"
+                className={`${styles.textInput} ${
+                  isSubmitting ? styles.submittingInput : ""
+                }`}
+                placeholder="텍스트를 입력하세요..."
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    setIsSubmitting(true);
+                    setTimeout(() => {
+                      setIsSubmitting(false);
+                      setIsMouthClicked(false);
+                    }, 1200);
+                  }
+                }}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
