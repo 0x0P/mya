@@ -40,6 +40,7 @@
   align-items: center;
   margin-bottom: 2rem;
   transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1);
+  animation: eyeClose reverse;
 }
 
 .eye {
@@ -156,7 +157,7 @@
   }
 }
 
-.sleeping .eye {
+.sleeping {
   animation: eyeClose 0.5s forwards;
 }
 
@@ -165,7 +166,7 @@
     transform: scaleY(1);
   }
   100% {
-    transform: scaleY(0.1);
+    transform: scaleY(0.05);
   }
 }
 
@@ -176,6 +177,7 @@
 @keyframes mouthSleep {
   0% {
     transform: translateY(0);
+    scale: 0;
   }
   100% {
     transform: translateY(20px);
@@ -184,11 +186,6 @@
 
 .eye {
   transform-origin: center center;
-}
-
-.sleeping .eye,
-.sleeping .mouth {
-  will-change: transform;
 }
 
 .mouthClicked,
