@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import styles from "@/styles/page.module.css";
 
 export default function Home() {
@@ -8,59 +8,62 @@ export default function Home() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const mouthRef = useRef<HTMLDivElement>(null);
 
+  const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isSleepingRef = useRef(isSleeping);
+
   useEffect(() => {
-    let inactivityTimer: NodeJS.Timeout;
+    isSleepingRef.current = isSleeping;
+  }, [isSleeping]);
 
-    const resetInactivityTimer = () => {
+  const handleUserActivity = useCallback(() => {
+    if (isSleepingRef.current) {
       setIsSleeping(false);
-      clearTimeout(inactivityTimer);
-      inactivityTimer = setTimeout(() => {
-        setIsSleeping(true);
-        console.log(isSleeping);
-      }, 3000);
-    };
+    }
+    if (sleepTimerRef.current) {
+      clearTimeout(sleepTimerRef.current);
+    }
+    sleepTimerRef.current = setTimeout(() => {
+      setIsSleeping(true);
+    }, 3000);
+  }, []);
 
+  useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
-      resetInactivityTimer();
-      if (isMouthClicked || isSleeping) return;
-
-      const eyes = document.querySelectorAll(`.${styles.eye}`);
-      const mouth = document.querySelector(`.${styles.mouth}`) as HTMLElement;
       const { clientX, clientY } = event;
+      const eyeElements = document.querySelectorAll(`.${styles.eye}`);
+      const mouth = document.querySelector(`.${styles.mouth}`) as HTMLElement;
 
-      eyes.forEach((eye, index) => {
-        const eyeElement = eye as HTMLElement;
-
-        const offsetX = index === 0 ? 0.07 : 0.1;
-        const offsetY = index === 0 ? 0.07 : 0.1;
-
-        const x = (clientX - window.innerWidth / 2) * offsetX;
-        const y = (clientY - window.innerHeight / 2) * offsetY;
-
-        eyeElement.style.transform = `translate(${x}px, ${y}px)`;
+      eyeElements.forEach((eyeElement) => {
+        const x = (clientX - window.innerWidth / 2) * 0.1;
+        const y = (clientY - window.innerHeight / 2) * 0.1;
+        (
+          eyeElement as HTMLElement
+        ).style.transform = `translate(${x}px, ${y}px)`;
       });
 
       const mouthOffsetX = (clientX - window.innerWidth / 2) * 0.05;
       const mouthOffsetY = (clientY - window.innerHeight / 2) * 0.05;
 
       mouth.style.transform = `translate(${mouthOffsetX}px, ${mouthOffsetY}px)`;
+      handleUserActivity();
     };
 
     window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mousemove", resetInactivityTimer);
-    window.addEventListener("keydown", resetInactivityTimer);
-    window.addEventListener("mousedown", resetInactivityTimer);
+    window.addEventListener("mousedown", handleUserActivity);
+    window.addEventListener("keydown", handleUserActivity);
 
-    resetInactivityTimer();
+    handleUserActivity();
 
+    // 클린업 함수
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousemove", resetInactivityTimer);
-      window.removeEventListener("keydown", resetInactivityTimer);
-      window.removeEventListener("mousedown", resetInactivityTimer);
-      clearTimeout(inactivityTimer);
+      window.removeEventListener("mousedown", handleUserActivity);
+      window.removeEventListener("keydown", handleUserActivity);
+      if (sleepTimerRef.current) {
+        clearTimeout(sleepTimerRef.current);
+      }
     };
-  }, [isMouthClicked, isSleeping]);
+  }, [handleUserActivity]);
 
   useEffect(() => {
     if (isMouthClicked) {
@@ -68,6 +71,7 @@ export default function Home() {
         if (event.key === "Escape") {
           setIsMouthClicked(false);
         }
+        handleUserActivity();
       };
 
       const handleClickOutside = (event: MouseEvent) => {
@@ -77,6 +81,7 @@ export default function Home() {
         ) {
           setIsMouthClicked(false);
         }
+        handleUserActivity();
       };
 
       window.addEventListener("keydown", handleKeyDown);
@@ -87,28 +92,31 @@ export default function Home() {
         window.removeEventListener("mousedown", handleClickOutside);
       };
     }
-  }, [isMouthClicked]);
+  }, [handleUserActivity, isMouthClicked]);
 
   return (
     <div className={`${styles.container}`}>
       <div className={styles.face}>
-        <div className={`${styles.eyes}  ${isMouthClicked ? styles.up : ""}`}>
+        <div className={`${styles.eyes} ${isMouthClicked ? styles.up : ""}`}>
           <div
-            className={`${styles.eye}  ${
+            className={`${styles.eye} ${
               isSleeping ? styles.sleeping : ""
-            } `}></div>
+            }`}></div>
           <div
-            className={`${styles.eye}  ${
+            className={`${styles.eye} ${
               isSleeping ? styles.sleeping : ""
-            } `}></div>
+            }`}></div>
         </div>
-        <div className={` ${isMouthClicked ? styles.mouthContainer : ""}`}>
+        <div className={`${isMouthClicked ? styles.mouthContainer : ""}`}>
           <div
             ref={mouthRef}
             className={`${styles.mouth} ${
               isMouthClicked ? styles.mouthClicked : ""
             } ${isSubmitting ? styles.submitting : ""}`}
-            onClick={() => setIsMouthClicked(true)}>
+            onClick={() => {
+              setIsMouthClicked(true);
+              handleUserActivity();
+            }}>
             {isMouthClicked && (
               <input
                 type="text"
@@ -118,6 +126,7 @@ export default function Home() {
                 placeholder="텍스트를 입력하세요..."
                 autoFocus
                 onKeyDown={(e) => {
+                  handleUserActivity();
                   if (e.key === "Enter") {
                     setIsSubmitting(true);
                     setTimeout(() => {
