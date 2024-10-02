@@ -41,8 +41,8 @@ export default function Home() {
         ).style.transform = `translate(${x}px, ${y}px)`;
       });
 
-      const mouthOffsetX = (clientX - window.innerWidth / 2) * 0.05;
-      const mouthOffsetY = (clientY - window.innerHeight / 2) * 0.05;
+      const mouthOffsetX = (clientX - window.innerWidth / 2) * 0.07;
+      const mouthOffsetY = (clientY - window.innerHeight / 2) * 0.07;
 
       mouth.style.transform = `translate(${mouthOffsetX}px, ${mouthOffsetY}px)`;
       handleUserActivity();
@@ -54,7 +54,6 @@ export default function Home() {
 
     handleUserActivity();
 
-    // 클린업 함수
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mousedown", handleUserActivity);
@@ -123,7 +122,7 @@ export default function Home() {
                 className={`${styles.textInput} ${
                   isSubmitting ? styles.submittingInput : ""
                 }`}
-                placeholder="텍스트를 입력하세요..."
+                placeholder="질문을 시작해봐요!"
                 autoFocus
                 onKeyDown={(e) => {
                   handleUserActivity();
