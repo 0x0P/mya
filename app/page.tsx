@@ -117,12 +117,11 @@ export default function Home() {
               handleUserActivity();
             }}>
             {isMouthClicked && (
-              <input
-                type="text"
+              <textarea
                 className={`${styles.textInput} ${
                   isSubmitting ? styles.submittingInput : ""
                 }`}
-                placeholder="질문을 시작해봐요!"
+                placeholder="질문을 시작하세요!"
                 autoFocus
                 onKeyDown={(e) => {
                   handleUserActivity();
